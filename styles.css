@@ -764,7 +764,12 @@ h4.sub-title {
         border: none;
         font-family: inherit;
         text-decoration: none;
-        width: fit-content;
+        width: auto;
+        min-width: max-content;
+        align-self: flex-start;
+        white-space: nowrap;
+        word-break: keep-all;
+        overflow-wrap: normal;
         transition: all 0.15s;
         position: relative;
       }
@@ -790,3 +795,16 @@ h4.sub-title {
         .app-card-btn:hover::before { opacity: 1; }
       }
       @media (max-width: 900px) { .app-cards { grid-template-columns: repeat(2, 1fr); } }
+
+      @media (max-width: 480px) {
+        .info-block-body {
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+        }
+        .info-block-body .styled-table {
+          min-width: 520px;
+        }
+        .app-card {
+          padding: 12px 14px;
+        }
+      }
