@@ -148,6 +148,69 @@ function initChecklist() {
   });
 }
 
+function initOrientationSlider() {
+  document.querySelectorAll('.orientation-slider').forEach(slider => {
+    const track = slider.querySelector('.orientation-track');
+    const slides = Array.from(track?.querySelectorAll('img') || []);
+    const thumbs = Array.from(slider.querySelectorAll('.orientation-thumbs button'));
+    const prevButton = slider.querySelector('.orientation-arrow.prev');
+    const nextButton = slider.querySelector('.orientation-arrow.next');
+
+    if (!track || slides.length === 0 || thumbs.length === 0) return;
+
+    let activeIndex = 0;
+
+    const clampIndex = index => Math.max(0, Math.min(index, slides.length - 1));
+
+    const setActive = index => {
+      activeIndex = clampIndex(index);
+      thumbs.forEach((thumb, thumbIndex) => {
+        thumb.classList.toggle('active', thumbIndex === activeIndex);
+      });
+      prevButton?.classList.toggle('is-hidden', activeIndex === 0);
+      nextButton?.classList.toggle('is-hidden', activeIndex === slides.length - 1);
+    };
+
+    const goToSlide = (index, behavior = 'smooth') => {
+      const nextIndex = clampIndex(index);
+      track.scrollTo({
+        left: nextIndex * track.clientWidth,
+        behavior
+      });
+      setActive(nextIndex);
+    };
+
+    thumbs.forEach((thumb, index) => {
+      thumb.addEventListener('click', () => {
+        goToSlide(index);
+      });
+    });
+
+    prevButton?.addEventListener('click', () => {
+      goToSlide(activeIndex - 1);
+    });
+
+    nextButton?.addEventListener('click', () => {
+      goToSlide(activeIndex + 1);
+    });
+
+    let scrollFrame = null;
+    track.addEventListener('scroll', () => {
+      if (scrollFrame) window.cancelAnimationFrame(scrollFrame);
+      scrollFrame = window.requestAnimationFrame(() => {
+        const currentIndex = Math.round(track.scrollLeft / track.clientWidth);
+        setActive(currentIndex);
+      });
+    }, { passive: true });
+
+    window.addEventListener('resize', () => {
+      goToSlide(activeIndex, 'auto');
+    });
+
+    setActive(0);
+  });
+}
+
 function searchPage(q) {
   const query = q.toLowerCase().trim();
   const resultBox = document.getElementById('search-results');
@@ -231,5 +294,6 @@ document.addEventListener('DOMContentLoaded', function() {
   addPlaceMapLinks();
   initResponsiveTables();
   initChecklist();
+  initOrientationSlider();
   showInitialPage();
 });
